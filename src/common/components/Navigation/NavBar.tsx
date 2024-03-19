@@ -137,7 +137,10 @@ const NavBar = () => {
                 {authData.isLoggedIn
                   ? LOGGED_IN_USER_MENU_PAGES.map(([link, page]) => (
                       <MenuItem key={page} onClick={handleCloseUserMenu}>
-                        <Typography textAlign="center">
+                        <Typography
+                          color={link === "logout" ? "error" : "default"}
+                          textAlign="center"
+                        >
                           <Link
                             to={`/${link}`}
                             style={{ textDecoration: "none", color: "inherit" }}
