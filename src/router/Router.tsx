@@ -1,16 +1,20 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
 import NavBar from "../common/components/Navigation/NavBar";
-import RegisterPage from "../pages/auth/register";
-import LogInPage from "../pages/auth/login";
+import RegisterPage from "../pages/auth/Register";
+import LogInPage from "../pages/auth/Login";
 import HomePage from "../pages/home/Home";
+import SearchPage from "../pages/search/Search";
+import { Container } from "@mui/material";
 
 const Router = createBrowserRouter([
   {
     path: "/",
     element: (
       <div>
-        <NavBar />
-        <Outlet />
+        <Container>
+          <NavBar />
+          <Outlet />
+        </Container>
       </div>
     ),
     children: [
@@ -26,6 +30,10 @@ const Router = createBrowserRouter([
       {
         path: "login",
         element: <LogInPage />,
+      },
+      {
+        path: "search",
+        element: <SearchPage />,
       },
     ],
   },
