@@ -207,7 +207,9 @@ const NavBar = () => {
                 )}
               />
             </Box>
-            <Button variant="outlined">Search</Button>
+            <Link to={`book/search?search=${typing}`}>
+              <Button variant="outlined">Search</Button>
+            </Link>
           </Toolbar>
         </Box>
       </Collapse>
