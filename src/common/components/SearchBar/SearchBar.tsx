@@ -74,9 +74,6 @@ export const SearchBar = () => {
           )}
         />
       </Box>
-      <Link to={`search?search=${typing}`}>
-        <Button variant="outlined">Search</Button>
-      </Link>
       {isError && (
         <Typography color={"error"} variant="caption" gutterBottom>
           {JSON.stringify(error)}
