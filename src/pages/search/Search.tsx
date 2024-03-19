@@ -1,4 +1,4 @@
-import { Container, Paper, Typography } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 
 const SearchPage = () => {

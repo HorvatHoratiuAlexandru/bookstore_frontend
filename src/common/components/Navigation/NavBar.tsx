@@ -1,13 +1,10 @@
 import {
   AppBar,
-  Autocomplete,
   Box,
-  Button,
   Collapse,
   IconButton,
   Menu,
   MenuItem,
-  TextField,
   Toolbar,
   Tooltip,
   Typography,
@@ -20,16 +17,13 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
   LOGGED_IN_USER_MENU_PAGES,
   NOT_LOGGED_IN_USER_MENU_PAGES,
 } from "../../config";
-import { useLazyGetSearchBooksQuery } from "../../../store/api/bookapi/book.api";
-import { bookData } from "../../interfaces/responses/book.res.interface";
-import useDebounce from "../../hooks/useDebounce";
 import { SearchBar } from "../SearchBar/SearchBar";
 
 const NavBar = () => {
