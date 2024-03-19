@@ -28,7 +28,7 @@ export const bookApi = createApi({
     }),
     getSearchBooks: builder.query<bookData[], string>({
       query: (searchText) => {
-        return `/book?search=${searchText}`;
+        return `/book/search?search=${searchText}`;
       },
     }),
   }),

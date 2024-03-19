@@ -1,11 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
+
 import userAuthReducer from "./auth/authSlice";
+import searchReducer from "./search/searchSlice";
 import { authApi } from "./api/authapi/auth.api";
 import { bookApi } from "./api/bookapi/book.api";
 
 export const store = configureStore({
   reducer: {
     userAuth: userAuthReducer,
+    search: searchReducer,
     [authApi.reducerPath]: authApi.reducer,
     [bookApi.reducerPath]: bookApi.reducer,
   },

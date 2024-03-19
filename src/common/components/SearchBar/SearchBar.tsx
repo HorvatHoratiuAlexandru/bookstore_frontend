@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  createFilterOptions,
   TextField,
   Typography,
 } from "@mui/material";
@@ -11,14 +12,22 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { useLazyGetSearchBooksQuery } from "../../../store/api/bookapi/book.api";
-import { bookData } from "../../interfaces/responses/book.res.interface";
 import useDebounce from "../../hooks/useDebounce";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store/store";
+import { setSearch } from "../../../store/search/searchSlice";
+
+const OPTIONS_LIMIT = 5;
+const filterOptions = createFilterOptions({
+  limit: OPTIONS_LIMIT,
+});
 
 export const SearchBar = () => {
   const [searchBooks, { isLoading, isError, data, error }] =
     useLazyGetSearchBooksQuery();
+  const searchResult = useSelector((state: RootState) => state.search);
+  const dispatch: AppDispatch = useDispatch();
 
-  const [searchResult, setSearchResult] = useState<bookData[]>([]);
   const [typing, setTyping] = useState<string>("");
 
   useDebounce(
@@ -37,17 +46,20 @@ export const SearchBar = () => {
 
   useEffect(() => {
     if (!isLoading && !isError && data) {
-      setSearchResult(data);
+      dispatch(setSearch(data));
     }
   }, [isLoading, data]);
   return (
     <>
       <Box flexGrow={1} marginX={2}>
         <Autocomplete
+          filterOptions={filterOptions}
           freeSolo
           id="navbar-search-bar"
           disableClearable
-          options={searchResult.map((option) => option.title)}
+          options={searchResult.map(
+            (option) => option.title + " by " + option.authors[0]
+          )}
           renderInput={(params) => (
             <TextField
               onChange={(e) => handleInputChange(e)}
