@@ -15,8 +15,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store/store";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -25,13 +25,15 @@ import {
   NOT_LOGGED_IN_USER_MENU_PAGES,
 } from "../../config";
 import { SearchBar } from "../SearchBar/SearchBar";
+import { setSearchToggle } from "../../../store/searchToggle/searchToggleSlice";
 
 const NavBar = () => {
   const authData = useSelector((state: RootState) => state.userAuth);
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const isSearchOpen = useSelector(
+    (state: RootState) => state.searchToggle.isSearchOpen
+  );
+  const dispatch: AppDispatch = useDispatch();
 
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const handleCloseUserMenu = () => {
@@ -57,11 +59,13 @@ const NavBar = () => {
               </Typography>
             </Box>
             <Box flexGrow={2}></Box>
-            {!open ? (
+            {!isSearchOpen ? (
               <IconButton
                 color="default"
                 aria-label="search"
-                onClick={handleOpen}
+                onClick={() => {
+                  dispatch(setSearchToggle());
+                }}
               >
                 <SearchIcon />
               </IconButton>
@@ -69,7 +73,9 @@ const NavBar = () => {
               <IconButton
                 color="default"
                 aria-label="search"
-                onClick={handleClose}
+                onClick={() => {
+                  dispatch(setSearchToggle());
+                }}
               >
                 <CloseIcon />
               </IconButton>
@@ -146,10 +152,14 @@ const NavBar = () => {
           <Link to={"/login"}>log in</Link>
         </Typography>
       )}
-      <Collapse in={open}>
+      <Collapse in={isSearchOpen}>
         <Box marginTop={2}>
           <Toolbar>
-            <IconButton onClick={handleClose}>
+            <IconButton
+              onClick={() => {
+                dispatch(setSearchToggle());
+              }}
+            >
               <ArrowBackIcon />
             </IconButton>
             <SearchBar />

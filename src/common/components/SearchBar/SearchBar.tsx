@@ -1,15 +1,20 @@
 import {
-  Autocomplete,
   Box,
-  Button,
-  createFilterOptions,
+  Paper,
+  Popper,
+  Stack,
   TextField,
   Typography,
+  Avatar,
+  List,
+  ListItem,
+  Divider,
+  ListItemAvatar,
+  ListItemText,
+  ListItemButton,
 } from "@mui/material";
 
-import { Link } from "react-router-dom";
-
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useLazyGetSearchBooksQuery } from "../../../store/api/bookapi/book.api";
 import useDebounce from "../../hooks/useDebounce";
@@ -17,17 +22,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
 import { setSearch } from "../../../store/search/searchSlice";
 
-const OPTIONS_LIMIT = 5;
-const filterOptions = createFilterOptions({
-  limit: OPTIONS_LIMIT,
-});
+import { BACKEND_BASE_URL } from "../../config";
+import { useNavigate, useNavigation } from "react-router-dom";
+import { setSearchToggle } from "../../../store/searchToggle/searchToggleSlice";
+
+const MAX_DISPLAY_VALUE = 4;
 
 export const SearchBar = () => {
+  const navigation = useNavigate();
   const [searchBooks, { isLoading, isError, data, error }] =
     useLazyGetSearchBooksQuery();
+
   const searchResult = useSelector((state: RootState) => state.search);
   const dispatch: AppDispatch = useDispatch();
 
+  const [showMore, setShowMore] = useState<number>(0);
   const [typing, setTyping] = useState<string>("");
 
   useDebounce(
@@ -42,6 +51,9 @@ export const SearchBar = () => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setTyping(event.currentTarget.value);
+    event.currentTarget.value !== ""
+      ? setAnchorEl(event.currentTarget)
+      : setAnchorEl(null);
   };
 
   useEffect(() => {
@@ -49,30 +61,82 @@ export const SearchBar = () => {
       dispatch(setSearch(data));
     }
   }, [isLoading, data]);
+
+  // popover
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+
   return (
     <>
       <Box flexGrow={1} marginX={2}>
-        <Autocomplete
-          filterOptions={filterOptions}
-          freeSolo
-          id="navbar-search-bar"
-          disableClearable
-          options={searchResult.map(
-            (option) => option.title + " by " + option.authors[0]
-          )}
-          renderInput={(params) => (
-            <TextField
-              onChange={(e) => handleInputChange(e)}
-              variant="standard"
-              {...params}
-              label="Search Books"
-              InputProps={{
-                ...params.InputProps,
-                type: "search",
-              }}
-            />
-          )}
+        <TextField
+          fullWidth
+          id="search"
+          name="search"
+          onChange={handleInputChange}
+          variant="standard"
+          label="Search Books"
         />
+        <Popper
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          disablePortal
+          sx={{ width: anchorEl?.clientWidth }}
+        >
+          <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+            {searchResult.map((book, index) => {
+              if (index < MAX_DISPLAY_VALUE + showMore) {
+                return (
+                  <>
+                    <ListItem alignItems="flex-start">
+                      <ListItemButton
+                        onClick={() => {
+                          dispatch(setSearchToggle());
+                          navigation(`book/${book.id}`);
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Avatar
+                            alt="Remy Sharp"
+                            src={
+                              BACKEND_BASE_URL + "book/image/" + book.images[0]
+                            }
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={book.title}
+                          secondary={book.authors[0] ? book.authors[0] : "NA"}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                    <Divider variant="inset" component="li" />
+                  </>
+                );
+              }
+            })}
+            <ListItem alignItems="flex-start">
+              <ListItemButton
+                onClick={
+                  showMore == 0
+                    ? () => {
+                        setShowMore((state) => state + 3);
+                      }
+                    : () => {
+                        setShowMore((state) => state - 3);
+                      }
+                }
+              >
+                <ListItemText
+                  secondary={showMore == 0 ? "show more" : "show less"}
+                />
+              </ListItemButton>
+            </ListItem>
+            <Divider component="li" />
+          </List>
+        </Popper>
       </Box>
       {isError && (
         <Typography color={"error"} variant="caption" gutterBottom>
