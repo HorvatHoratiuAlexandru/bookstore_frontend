@@ -3,7 +3,7 @@ import NavBar from "../common/components/Navigation/NavBar";
 import RegisterPage from "../pages/auth/Register";
 import LogInPage from "../pages/auth/Login";
 import HomePage from "../pages/home/Home";
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 
 const Router = createBrowserRouter([
   {
@@ -11,8 +11,10 @@ const Router = createBrowserRouter([
     element: (
       <div>
         <Container>
-          <NavBar />
-          <Outlet />
+          <Box bgcolor={"#EEEEEE"} padding={1}>
+            <NavBar />
+            <Outlet />
+          </Box>
         </Container>
       </div>
     ),

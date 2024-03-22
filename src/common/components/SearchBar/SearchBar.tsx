@@ -1,8 +1,5 @@
 import {
   Box,
-  Paper,
-  Popper,
-  Stack,
   TextField,
   Typography,
   Avatar,
@@ -23,10 +20,10 @@ import { AppDispatch, RootState } from "../../../store/store";
 import { setSearch } from "../../../store/search/searchSlice";
 
 import { BACKEND_BASE_URL } from "../../config";
-import { useNavigate, useNavigation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { setSearchToggle } from "../../../store/searchToggle/searchToggleSlice";
 
-const MAX_DISPLAY_VALUE = 4;
+const MAX_DISPLAY_VALUE = 3;
 
 export const SearchBar = () => {
   const navigation = useNavigate();
@@ -79,64 +76,58 @@ export const SearchBar = () => {
           variant="standard"
           label="Search Books"
         />
-        <Popper
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          disablePortal
-          sx={{ width: anchorEl?.clientWidth }}
-        >
-          <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-            {searchResult.map((book, index) => {
-              if (index < MAX_DISPLAY_VALUE + showMore) {
-                return (
-                  <>
-                    <ListItem alignItems="flex-start">
-                      <ListItemButton
-                        onClick={() => {
-                          dispatch(setSearchToggle());
-                          navigation(`book/${book.id}`);
-                        }}
-                      >
-                        <ListItemAvatar>
-                          <Avatar
-                            alt="Remy Sharp"
-                            src={
-                              BACKEND_BASE_URL + "book/image/" + book.images[0]
-                            }
-                          />
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={book.title}
-                          secondary={book.authors[0] ? book.authors[0] : "NA"}
+
+        <List sx={{ width: "100%", bgcolor: "background.papper" }}>
+          {searchResult.map((book, index) => {
+            if (index < MAX_DISPLAY_VALUE + showMore) {
+              return (
+                <React.Fragment key={"fragment" + book.id}>
+                  <ListItem alignItems="flex-start" key={"listitem" + book.id}>
+                    <ListItemButton
+                      onClick={() => {
+                        dispatch(setSearchToggle());
+                        navigation(`book/${book.id}`);
+                      }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar
+                          alt="Remy Sharp"
+                          src={
+                            BACKEND_BASE_URL + "book/image/" + book.images[0]
+                          }
                         />
-                      </ListItemButton>
-                    </ListItem>
-                    <Divider variant="inset" component="li" />
-                  </>
-                );
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={book.title}
+                        secondary={book.authors[0] ? book.authors[0] : "NA"}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  <Divider variant="inset" component="li" />
+                </React.Fragment>
+              );
+            }
+          })}
+          <ListItem alignItems="flex-start">
+            <ListItemButton
+              disabled={searchResult.length < MAX_DISPLAY_VALUE}
+              onClick={
+                showMore == 0
+                  ? () => {
+                      setShowMore((state) => state + 3);
+                    }
+                  : () => {
+                      setShowMore((state) => state - 3);
+                    }
               }
-            })}
-            <ListItem alignItems="flex-start">
-              <ListItemButton
-                onClick={
-                  showMore == 0
-                    ? () => {
-                        setShowMore((state) => state + 3);
-                      }
-                    : () => {
-                        setShowMore((state) => state - 3);
-                      }
-                }
-              >
-                <ListItemText
-                  secondary={showMore == 0 ? "show more" : "show less"}
-                />
-              </ListItemButton>
-            </ListItem>
-            <Divider component="li" />
-          </List>
-        </Popper>
+            >
+              <ListItemText
+                secondary={showMore == 0 ? "show more" : "show less"}
+              />
+            </ListItemButton>
+          </ListItem>
+          <Divider component="li" />
+        </List>
       </Box>
       {isError && (
         <Typography color={"error"} variant="caption" gutterBottom>
