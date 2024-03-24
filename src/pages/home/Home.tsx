@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Button,
   Card,
@@ -11,62 +10,24 @@ import {
   IconButton,
   Pagination,
   Paper,
-  Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
-import { useGetBooksQuery } from "../../store/api/bookapi/book.api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Link } from "react-router-dom";
 
 import { BACKEND_BASE_URL, TAGS_LIST } from "../../common/config";
 import { bookData } from "../../common/interfaces/responses/book.res.interface";
+import TagFilter from "../../common/components/TagFiltering/TagFilter";
 
 const HomePage = () => {
-  //tags
-  const [isDisabledTagButton, setIsDisabledTagButton] = useState<boolean>(true);
-  const [activeTags, setActiveTags] = useState<string[]>([]);
-
-  const [value, setValue] = useState<string | null>("");
-  const [inputValue, setInputValue] = useState("");
-
-  const isInputNotATag = (inputTag: string) => {
-    if (TAGS_LIST.includes(inputTag)) {
-      if (isDisabledTagButton) {
-        setIsDisabledTagButton(() => false);
-      }
-      return false;
-    } else {
-      if (!isDisabledTagButton) {
-        setIsDisabledTagButton(() => true);
-      }
-      return true;
-    }
-  };
-
-  const handleAddTagClick = () => {
-    if (!isInputNotATag(inputValue) && !activeTags.includes(inputValue)) {
-      setActiveTags((prevTags) => [...prevTags, inputValue]);
-      setCurrentPage(() => 1);
-    }
-  };
-
-  const handleChipDelete = (chip: string) => {
-    setActiveTags((state) => {
-      return state.filter((item) => item !== chip);
-    });
-  };
-
-  const { isLoading, isError, data, error } = useGetBooksQuery(activeTags);
-
   const [currentData, setCurrentData] = useState<bookData[]>([]);
 
   const itemsPerPage = 9;
-  const totalItems = data?.length || 0;
+  const totalItems = currentData?.length || 0;
   const lastPageIndex = Math.ceil(totalItems / 9);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -84,77 +45,23 @@ const HomePage = () => {
     scrollToTop();
   };
 
-  useEffect(() => {
-    if (!isLoading && !isError && data) {
-      setCurrentData(data);
-    }
-  }, [isLoading, data]);
+  const onQueryChange = (data: bookData[]) => {
+    setCurrentData(data);
+    setCurrentPage(() => 1);
+  };
 
-  const handleViewMore = (id: number) => {};
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={3}>
-        <Paper>
-          {isError && (
-            <Typography variant="body1">{JSON.stringify(error)}</Typography>
-          )}
-          <Box paddingX={1} paddingY={2} marginY={2}>
-            <Stack gap={1}>
-              <Autocomplete
-                value={value}
-                onChange={(event: any, newValue: string | null) => {
-                  isInputNotATag(newValue ? newValue : "");
-                  setValue(newValue);
-                }}
-                inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
-                  isInputNotATag(newInputValue);
-                  setInputValue(newInputValue);
-                }}
-                id="controllable-states-demo"
-                options={TAGS_LIST}
-                sx={{ width: "100%" }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Add a tag" />
-                )}
-              />
-
-              <Button
-                disabled={isDisabledTagButton}
-                onClick={() => handleAddTagClick()}
-                variant="outlined"
-              >
-                Add
-              </Button>
-              <Box
-                display={"flex"}
-                flexDirection={"row"}
-                flexWrap={"wrap"}
-                gap={1}
-              >
-                {activeTags.map((tag) => {
-                  return (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      onDelete={() => handleChipDelete(tag)}
-                    />
-                  );
-                })}
-              </Box>
-            </Stack>
-          </Box>
-        </Paper>
+        <TagFilter onQueryData={onQueryChange} tags={TAGS_LIST} />
       </Grid>
       <Grid item xs={12} md={9}>
         <Paper>
           <Box paddingX={1} paddingY={2} marginY={2}>
             <Grid container gap={1}>
-              {isLoading && <CircularProgress />}
-              {!isLoading &&
-                !isError &&
-                data &&
-                data.map((book, index) => {
+              {!currentData && <CircularProgress />}
+              {currentData &&
+                currentData.map((book, index) => {
                   if (
                     index >= (currentPage - 1) * itemsPerPage &&
                     index < currentPage * itemsPerPage
