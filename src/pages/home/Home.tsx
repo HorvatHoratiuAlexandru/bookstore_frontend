@@ -53,7 +53,11 @@ const HomePage = () => {
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={3}>
-        <TagFilter onQueryData={onQueryChange} tags={TAGS_LIST} />
+        <TagFilter
+          onQueryData={onQueryChange}
+          tags={TAGS_LIST}
+          presetFirstTag={false}
+        />
       </Grid>
       <Grid item xs={12} md={9}>
         <Paper>

@@ -1,8 +1,14 @@
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
   Grid,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
   Paper,
   Stack,
   Typography,
@@ -11,9 +17,14 @@ import {
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGetBookQuery } from "../../store/api/bookapi/book.api";
 import ImageGallery from "../../common/components/ImageGallery/ImageGallery";
+import { useState } from "react";
+import { bookData } from "../../common/interfaces/responses/book.res.interface";
+import TagFilter from "../../common/components/TagFiltering/TagFilter";
+
+import { BACKEND_BASE_URL } from "../../common/config";
 
 const BookPage = () => {
   const { bookId } = useParams();
@@ -21,6 +32,45 @@ const BookPage = () => {
   const { isLoading, isError, data, error } = useGetBookQuery(
     Number.parseInt(parsedBookId)
   );
+
+  const [suggestedBookData, setSuggestedBookData] = useState<bookData[]>([]);
+
+  const [from, setFrom] = useState<number>(0);
+  const [to, setTo] = useState(3);
+
+  const onQueryData = (books: bookData[]) => {
+    const suggestion = books
+      .map((book) => {
+        // If 'data' is not undefined and the book id is not equal to data id, return the book
+        if (data && book.id !== data.id) {
+          return book;
+        }
+        // Otherwise, return null (or any other fallback value)
+        return null;
+      })
+      .filter((book) => book !== null) as bookData[]; // Filter out null values
+
+    setSuggestedBookData(suggestion);
+  };
+
+  const navigation = useNavigate();
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Optional: Smooth scrolling behavior
+    });
+  };
+
+  const handlePrev = () => {
+    setFrom((fromState) => fromState - 3);
+    setTo((prevState) => prevState - 3);
+  };
+
+  const handleNext = () => {
+    setFrom((fromState) => fromState + 3);
+    setTo((prevState) => prevState + 3);
+  };
 
   return (
     <>
@@ -137,20 +187,58 @@ const BookPage = () => {
             </Grid>
 
             <Grid item xs={9}>
-              <Box
-                display={"flex"}
-                justifyContent={"flex-start"}
-                flexDirection={"column"}
-                width={"100%"}
-                bgcolor={"red"}
-              >
-                <Box>
-                  <Typography>books with the same tags</Typography>
+              <Stack>
+                <Box width={"60%"}>
+                  <Typography variant="body1">
+                    Search for books with the same tags:
+                  </Typography>
+                  <TagFilter
+                    onQueryData={onQueryData}
+                    tags={data.tags}
+                    presetFirstTag={true}
+                  />
                 </Box>
                 <Box>
-                  <Typography variant="body1">book icons carousel</Typography>
+                  <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+                    {suggestedBookData.map((book, index) => {
+                      if (index < to && index >= from && book.id !== data.id) {
+                        return (
+                          <ListItem>
+                            <ListItemButton
+                              onClick={() => {
+                                navigation(`/book/${book.id}`);
+                                scrollToTop();
+                              }}
+                            >
+                              <ListItemAvatar>
+                                <Avatar
+                                  src={
+                                    BACKEND_BASE_URL +
+                                    "book/image/" +
+                                    book.images[0]
+                                  }
+                                />
+                              </ListItemAvatar>
+                              <ListItemText
+                                primary={<Typography>{book.title}</Typography>}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        );
+                      }
+                    })}
+                  </List>
+                  <Button onClick={handlePrev} disabled={from === 0}>
+                    Prev
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    disabled={to >= suggestedBookData.length}
+                  >
+                    Next
+                  </Button>
                 </Box>
-              </Box>
+              </Stack>
             </Grid>
           </Grid>
         </Stack>

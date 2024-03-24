@@ -10,18 +10,20 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { TAGS_LIST } from "../../config";
 import { useGetBooksQuery } from "../../../store/api/bookapi/book.api";
 import { bookData } from "../../interfaces/responses/book.res.interface";
 
 interface TagFilterProps {
   tags: string[];
   onQueryData: (data: bookData[]) => void;
+  presetFirstTag: boolean;
 }
 
 const TagFilter = (props: TagFilterProps) => {
   const [isDisabledTagButton, setIsDisabledTagButton] = useState<boolean>(true);
-  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [activeTags, setActiveTags] = useState<string[]>(
+    props.presetFirstTag ? [props.tags[0]] : []
+  );
 
   const [value, setValue] = useState<string | null>("");
   const [inputValue, setInputValue] = useState("");
@@ -79,7 +81,7 @@ const TagFilter = (props: TagFilterProps) => {
                 setInputValue(newInputValue);
               }}
               id="controllable-states-demo"
-              options={TAGS_LIST}
+              options={props.tags}
               sx={{ width: "100%" }}
               renderInput={(params) => (
                 <TextField {...params} label="Add a tag" />
