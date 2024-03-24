@@ -4,6 +4,7 @@ import RegisterPage from "../pages/auth/Register";
 import LogInPage from "../pages/auth/Login";
 import HomePage from "../pages/home/Home";
 import { Box, Container } from "@mui/material";
+import BookPage from "../pages/book/Book";
 
 const Router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const Router = createBrowserRouter([
       {
         path: "login",
         element: <LogInPage />,
+      },
+      {
+        path: "book/:bookId",
+        element: <BookPage />,
       },
     ],
   },

@@ -31,7 +31,13 @@ export const bookApi = createApi({
         return `/book/search?search=${searchText}`;
       },
     }),
+    getBook: builder.query<bookData, number>({
+      query: (bookId) => {
+        return "book/" + bookId;
+      },
+    }),
   }),
 });
 
-export const { useGetBooksQuery, useLazyGetSearchBooksQuery } = bookApi;
+export const { useGetBooksQuery, useLazyGetSearchBooksQuery, useGetBookQuery } =
+  bookApi;
