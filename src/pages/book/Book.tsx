@@ -84,7 +84,7 @@ const BookPage = () => {
                 <Box
                   display={"flex"}
                   justifyContent={"flex-start"}
-                  flexDirection={"row"}
+                  flexDirection={{ xs: "column", md: "column", lg: "row" }}
                   alignItems={"stretch"}
                 >
                   <Box>
