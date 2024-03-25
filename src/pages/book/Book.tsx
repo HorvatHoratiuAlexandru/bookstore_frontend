@@ -25,6 +25,7 @@ import { bookData } from "../../common/interfaces/responses/book.res.interface";
 import TagFilter from "../../common/components/TagFiltering/TagFilter";
 
 import { BACKEND_BASE_URL } from "../../common/config";
+import BookReviews from "./components/BookReviews";
 
 const BookPage = () => {
   const { bookId } = useParams();
@@ -168,20 +169,7 @@ const BookPage = () => {
                 width={"100%"}
               >
                 <Paper>
-                  <Stack>
-                    <Box margin={1} padding={1}>
-                      <Typography variant="h5">Ratings</Typography>
-                      <Typography variant="h6">
-                        {"Grade: " + data.grade}
-                      </Typography>
-                    </Box>
-                    <Box margin={1}>
-                      <Typography variant="body1">Review1</Typography>
-                      <Typography variant="body1">Review1</Typography>
-                      <Typography variant="body1">Review1</Typography>
-                      <Typography variant="body1">Review1</Typography>
-                    </Box>
-                  </Stack>
+                  <BookReviews />
                 </Paper>
               </Box>
             </Grid>
