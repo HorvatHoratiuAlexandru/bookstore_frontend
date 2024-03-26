@@ -6,6 +6,7 @@ import searchToggleReducer from "./searchToggle/searchToggleSlice";
 
 import { authApi } from "./api/authapi/auth.api";
 import { bookApi } from "./api/bookapi/book.api";
+import { reviewApi } from "./api/reviewapi/review.api";
 
 export const store = configureStore({
   reducer: {
@@ -14,12 +15,14 @@ export const store = configureStore({
     searchToggle: searchToggleReducer,
     [authApi.reducerPath]: authApi.reducer,
     [bookApi.reducerPath]: bookApi.reducer,
+    [reviewApi.reducerPath]: reviewApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(
       authApi.middleware,
-      bookApi.middleware
+      bookApi.middleware,
+      reviewApi.middleware
     );
   },
 });
