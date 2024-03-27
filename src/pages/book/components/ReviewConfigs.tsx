@@ -3,8 +3,17 @@ const ratings: string[] = [
   "Poor",
   "Fair",
   "Good",
-  "Very Good",
+  "Very_Good",
   "Excellent",
 ];
 
-export default ratings;
+const rawRatings: string[] = [
+  "poor",
+  "poor",
+  "fair",
+  "good",
+  "very_good",
+  "excellent",
+];
+
+export { ratings, rawRatings };

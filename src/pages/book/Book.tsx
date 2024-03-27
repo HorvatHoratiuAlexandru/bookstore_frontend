@@ -169,7 +169,7 @@ const BookPage = () => {
                 width={"100%"}
               >
                 <Paper>
-                  <BookReviews />
+                  <BookReviews bookId={data.id} grade={data.grade} />
                 </Paper>
               </Box>
             </Grid>

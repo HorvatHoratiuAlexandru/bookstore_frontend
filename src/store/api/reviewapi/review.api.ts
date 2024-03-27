@@ -12,11 +12,13 @@ type postQuery = {
 export const reviewApi = createApi({
   reducerPath: "reviewApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["reviews"],
   endpoints: (builder) => ({
     getReviews: builder.query<ReviewDataRes[], number>({
       query: (bookId) => {
         return "book/" + bookId + "/review";
       },
+      providesTags: [{ type: "reviews", id: 1 }],
     }),
     postReview: builder.mutation<ReviewDataRes[], postQuery>({
       query: ({ bookId, form }) => ({
@@ -24,6 +26,7 @@ export const reviewApi = createApi({
         method: "POST",
         body: form,
       }),
+      invalidatesTags: [{ type: "reviews", id: 1 }],
     }),
     updateReview: builder.mutation<ReviewDataRes[], postQuery>({
       query: ({ bookId, form }) => ({
@@ -31,12 +34,14 @@ export const reviewApi = createApi({
         method: "PUT",
         body: form,
       }),
+      invalidatesTags: [{ type: "reviews", id: 1 }],
     }),
     deleteReview: builder.mutation<ReviewDataRes[], number>({
       query: (bookId) => ({
         url: "book/" + bookId + "/review",
         method: "DELETE",
       }),
+      invalidatesTags: [{ type: "reviews", id: 1 }],
     }),
   }),
 });
