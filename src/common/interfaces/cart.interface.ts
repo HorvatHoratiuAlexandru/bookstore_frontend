@@ -3,7 +3,7 @@ export interface CartData {
 }
 
 export interface CartItem {
-  ammount: number;
+  amount: number;
   title: string;
   price: number;
   img: string;

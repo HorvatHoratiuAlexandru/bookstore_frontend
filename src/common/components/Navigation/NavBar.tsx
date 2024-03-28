@@ -31,12 +31,12 @@ import { setSearchToggle } from "../../../store/searchToggle/searchToggleSlice";
 import { CartData } from "../../interfaces/cart.interface";
 
 const getCartItemNumber = (data: CartData) => {
-  let ammount = 0;
+  let amount = 0;
   for (const key in data) {
-    ammount = ammount + data[key].ammount;
+    amount = amount + data[key].amount;
   }
 
-  return ammount;
+  return amount;
 };
 
 const NavBar = () => {
