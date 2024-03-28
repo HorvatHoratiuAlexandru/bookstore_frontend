@@ -22,9 +22,13 @@ import { Link } from "react-router-dom";
 import { BACKEND_BASE_URL, TAGS_LIST } from "../../common/config";
 import { bookData } from "../../common/interfaces/responses/book.res.interface";
 import TagFilter from "../../common/components/TagFiltering/TagFilter";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store/store";
+import { addItem } from "../../store/shoppingcart/shoppingcartSlice";
 
 const HomePage = () => {
   const [currentData, setCurrentData] = useState<bookData[]>([]);
+  const dispatch: AppDispatch = useDispatch();
 
   const itemsPerPage = 9;
   const totalItems = currentData?.length || 0;
@@ -48,6 +52,14 @@ const HomePage = () => {
   const onQueryChange = (data: bookData[]) => {
     setCurrentData(data);
     setCurrentPage(() => 1);
+  };
+
+  const handleAddItemToCart = (
+    key: string,
+    value: { title: string; price: number; img: string }
+  ) => {
+    dispatch(addItem({ key: key, value: value }));
+    scrollToTop();
   };
 
   return (
@@ -165,7 +177,15 @@ const HomePage = () => {
                                 <Link to={"book/" + book.id}>
                                   <Button variant="text">view more</Button>
                                 </Link>
-                                <IconButton>
+                                <IconButton
+                                  onClick={() =>
+                                    handleAddItemToCart(book.id.toString(), {
+                                      title: book.title,
+                                      price: book.price,
+                                      img: book.images[0],
+                                    })
+                                  }
+                                >
                                   <ShoppingCartIcon />
                                 </IconButton>
                               </Box>
