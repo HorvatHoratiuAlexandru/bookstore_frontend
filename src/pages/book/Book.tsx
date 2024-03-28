@@ -26,6 +26,9 @@ import TagFilter from "../../common/components/TagFiltering/TagFilter";
 
 import { BACKEND_BASE_URL } from "../../common/config";
 import BookReviews from "./components/BookReviews";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store/store";
+import { addItem } from "../../store/shoppingcart/shoppingcartSlice";
 
 const BookPage = () => {
   const { bookId } = useParams();
@@ -42,11 +45,9 @@ const BookPage = () => {
   const onQueryData = (books: bookData[]) => {
     const suggestion = books
       .map((book) => {
-        // If 'data' is not undefined and the book id is not equal to data id, return the book
         if (data && book.id !== data.id) {
           return book;
         }
-        // Otherwise, return null (or any other fallback value)
         return null;
       })
       .filter((book) => book !== null) as bookData[]; // Filter out null values
@@ -59,7 +60,7 @@ const BookPage = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth", // Optional: Smooth scrolling behavior
+      behavior: "smooth",
     });
   };
 
@@ -71,6 +72,24 @@ const BookPage = () => {
   const handleNext = () => {
     setFrom((fromState) => fromState + 3);
     setTo((prevState) => prevState + 3);
+  };
+
+  // shopping cart
+  const dispatch: AppDispatch = useDispatch();
+
+  const handleAddToCart = () => {
+    if (data) {
+      dispatch(
+        addItem({
+          key: data.id.toString(),
+          value: {
+            title: data.title,
+            price: data.price,
+            img: data.images[0],
+          },
+        })
+      );
+    }
   };
 
   return (
@@ -115,11 +134,12 @@ const BookPage = () => {
                             {"On Stock: " + data.stock}
                           </Typography>
                           <Button
+                            onClick={handleAddToCart}
                             startIcon={<ShoppingCartIcon />}
                             variant="contained"
                           >
                             <Typography variant="body1" noWrap>
-                              Adauga in cos
+                              Add to cart
                             </Typography>
                           </Button>
                           <Button
@@ -127,7 +147,7 @@ const BookPage = () => {
                             variant="contained"
                           >
                             <Typography variant="body1" noWrap>
-                              Adauga in wishlist
+                              Add to wishlist
                             </Typography>
                           </Button>
                         </Stack>
