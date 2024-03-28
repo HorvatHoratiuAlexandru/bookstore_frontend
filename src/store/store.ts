@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import userAuthReducer from "./auth/authSlice";
 import searchReducer from "./search/searchSlice";
 import searchToggleReducer from "./searchToggle/searchToggleSlice";
+import cartDataReducer from "./shoppingcart/shoppingcartSlice";
 
 import { authApi } from "./api/authapi/auth.api";
 import { bookApi } from "./api/bookapi/book.api";
@@ -13,6 +14,7 @@ export const store = configureStore({
     userAuth: userAuthReducer,
     search: searchReducer,
     searchToggle: searchToggleReducer,
+    cartData: cartDataReducer,
     [authApi.reducerPath]: authApi.reducer,
     [bookApi.reducerPath]: bookApi.reducer,
     [reviewApi.reducerPath]: reviewApi.reducer,

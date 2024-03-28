@@ -14,6 +14,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
@@ -140,9 +141,13 @@ const NavBar = () => {
                     ))}
               </Menu>
             </Box>
-            {
-              //******** */
-            }
+            <Box>
+              <Link to="/cart">
+                <IconButton>
+                  <ShoppingCartIcon />
+                </IconButton>
+              </Link>
+            </Box>
           </Toolbar>
         </Box>
       </AppBar>

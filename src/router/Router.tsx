@@ -5,6 +5,7 @@ import LogInPage from "../pages/auth/Login";
 import HomePage from "../pages/home/Home";
 import { Box, Container } from "@mui/material";
 import BookPage from "../pages/book/Book";
+import ShoppingCart from "../pages/shop/ShoppingCart";
 
 const Router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const Router = createBrowserRouter([
       {
         path: "book/:bookId",
         element: <BookPage />,
+      },
+      {
+        path: "cart",
+        element: <ShoppingCart />,
       },
     ],
   },
