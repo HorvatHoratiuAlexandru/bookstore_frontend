@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -10,10 +11,12 @@ import {
   IconButton,
   Pagination,
   Paper,
+  Snackbar,
   Typography,
 } from "@mui/material";
 
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useState } from "react";
 
@@ -60,6 +63,21 @@ const HomePage = () => {
   ) => {
     dispatch(addItem({ key: key, value: value }));
     scrollToTop();
+    setSnackbarOpen(true);
+  };
+
+  //snackbar feedback
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(() => false);
   };
 
   return (
@@ -188,6 +206,18 @@ const HomePage = () => {
                                 >
                                   <ShoppingCartIcon />
                                 </IconButton>
+                                <Snackbar
+                                  open={snackbarOpen}
+                                  autoHideDuration={1500}
+                                  onClose={handleSnackbarClose}
+                                >
+                                  <Alert
+                                    onClose={handleSnackbarClose}
+                                    severity="success"
+                                  >
+                                    Product added to the cart!
+                                  </Alert>
+                                </Snackbar>
                               </Box>
                             </Box>
                           </Card>

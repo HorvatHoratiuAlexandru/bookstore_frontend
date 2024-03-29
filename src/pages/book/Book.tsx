@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -10,6 +11,7 @@ import {
   ListItemButton,
   ListItemText,
   Paper,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -75,7 +77,7 @@ const BookPage = () => {
   };
 
   // shopping cart
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
 
   const handleAddToCart = () => {
     if (data) {
@@ -89,7 +91,21 @@ const BookPage = () => {
           },
         })
       );
+      setSnackbarOpen(true);
     }
+  };
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(() => false);
   };
 
   return (
@@ -142,6 +158,18 @@ const BookPage = () => {
                               Add to cart
                             </Typography>
                           </Button>
+                          <Snackbar
+                            open={snackbarOpen}
+                            autoHideDuration={1500}
+                            onClose={handleSnackbarClose}
+                          >
+                            <Alert
+                              onClose={handleSnackbarClose}
+                              severity="success"
+                            >
+                              Product added to the cart!
+                            </Alert>
+                          </Snackbar>
                           <Button
                             startIcon={<FavoriteBorderIcon />}
                             variant="contained"
