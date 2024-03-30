@@ -2,12 +2,9 @@ import {
   Avatar,
   Box,
   Button,
-  Checkbox,
   Container,
   Divider,
-  FormControlLabel,
   IconButton,
-  Input,
   List,
   ListItem,
   ListItemAvatar,
@@ -33,13 +30,28 @@ import {
   removeAllItems,
   removeItem,
 } from "../../store/shoppingcart/shoppingcartSlice";
-import { useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useGetUserByIdQuery } from "../../store/api/userapi/user.api";
 
 const steps = ["Billing Data", "Card Payment", "Confirm"];
+const switchValues = [
+  "EMAIL",
+  "FULLNAME",
+  "ADDRESS",
+  "HOLDERNAME",
+  "CARDNUMBER",
+  "CCV",
+];
 
 const ShoppingCart = () => {
   const cartData = useSelector((rootState: RootState) => rootState.cartData);
+  const authData = useSelector((rootState: RootState) => rootState.userAuth);
+
+  const { data, error, isError, status } = useGetUserByIdQuery(authData.uid, {
+    skip: authData.uid === "anon",
+  });
+
   const dispatch: AppDispatch = useDispatch();
 
   const handleRemove = (key: string) => {
@@ -55,22 +67,71 @@ const ShoppingCart = () => {
   };
 
   //STEPPER
-  // type OrderDetails = {
-  //   email: string;
-  //   fullName: string;
-  //   address: string;
-  //   cardNumber?: string;
-  //   ccv?: string;
-  //   cardHolderName?: string;
-  // };
-  // const { orderDetail, setOrderDetail } = useState<OrderDetails>({
-  //   email: "Mock",
-  //   fullName: "MockFullName",
-  //   address: "MockAddress",
-  // });
+  type OrderDetails = {
+    email: string;
+    fullName: string;
+    address: string;
+    cardNumber: string;
+    ccv: string;
+    cardHolderName: string;
+  };
+  const [orderDetail, setOrderDetail] = useState<OrderDetails>({
+    email: data ? data.email : "",
+    fullName: data ? data.fullName : "",
+    address: data ? data.address : "",
+    cardNumber: "",
+    ccv: "",
+    cardHolderName: data ? data.fullName : "",
+  });
 
-  // const bilingDataExists;
-  // const cardDataExists;
+  const bilingDataExists = () => {
+    if (
+      orderDetail.email === "" ||
+      orderDetail.fullName === "" ||
+      orderDetail.address === ""
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+  const cardDataExists = () => {
+    if (
+      orderDetail.cardNumber === "" ||
+      orderDetail.cardHolderName === "" ||
+      orderDetail.ccv === ""
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const isBilingData = useMemo(() => bilingDataExists(), [orderDetail]);
+  const isCardData = useMemo(() => cardDataExists(), [orderDetail]);
+
+  const handleFormChange = (value: string, form: string) => {
+    switch (form) {
+      case switchValues[0]:
+        setOrderDetail((state) => ({ ...state, email: value }));
+        break;
+      case switchValues[1]:
+        setOrderDetail((state) => ({ ...state, fullName: value }));
+        break;
+      case switchValues[2]:
+        setOrderDetail((state) => ({ ...state, address: value }));
+        break;
+      case switchValues[3]:
+        setOrderDetail((state) => ({ ...state, cardHolderName: value }));
+        break;
+      case switchValues[4]:
+        setOrderDetail((state) => ({ ...state, cardNumber: value }));
+        break;
+      case switchValues[5]:
+        setOrderDetail((state) => ({ ...state, ccv: value }));
+        break;
+    }
+  };
 
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
@@ -113,6 +174,7 @@ const ShoppingCart = () => {
     });
   };
 
+  console.log(orderDetail);
   return (
     <Container>
       <Stack gap={1}>
@@ -216,6 +278,17 @@ const ShoppingCart = () => {
                 flexDirection={"column"}
                 columnGap={1}
               >
+                {status === "uninitialized" && (
+                  <Typography
+                    align="center"
+                    gutterBottom
+                    variant="body2"
+                    color={"error"}
+                  >
+                    You are not logged in, please register or log in to be able
+                    to place an order.
+                  </Typography>
+                )}
                 <Typography gutterBottom variant="h6" color={"primary"}>
                   Place Order:
                 </Typography>
@@ -264,6 +337,13 @@ const ShoppingCart = () => {
                       {activeStep === 0 && (
                         <Box sx={{ width: "100%" }}>
                           <TextField
+                            value={orderDetail.email}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[0]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -274,6 +354,13 @@ const ShoppingCart = () => {
                             autoFocus
                           />
                           <TextField
+                            value={orderDetail.address}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[2]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -284,6 +371,13 @@ const ShoppingCart = () => {
                             autoFocus
                           />
                           <TextField
+                            value={orderDetail.fullName}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[1]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -301,6 +395,13 @@ const ShoppingCart = () => {
                             Mock data with whatever you like
                           </Typography>
                           <TextField
+                            value={orderDetail.cardNumber}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[4]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -311,6 +412,13 @@ const ShoppingCart = () => {
                             autoFocus
                           />
                           <TextField
+                            value={orderDetail.cardHolderName}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[3]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -321,6 +429,13 @@ const ShoppingCart = () => {
                             autoFocus
                           />
                           <TextField
+                            value={orderDetail.ccv}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[5]
+                              )
+                            }
                             margin="normal"
                             required
                             fullWidth
@@ -340,6 +455,41 @@ const ShoppingCart = () => {
                           <Typography variant="h6" color={"primary"}>
                             Place order by pressing finish
                           </Typography>
+                          {!authData.isLoggedIn && (
+                            <Typography variant="body2" color={"error"}>
+                              Login to be able to place the order!
+                            </Typography>
+                          )}
+                          <Typography variant="h6" color={"green"}>
+                            Details:
+                          </Typography>
+                          <Typography
+                            gutterBottom
+                            variant="body2"
+                            color={"text.secondary"}
+                          >
+                            Billing Name: {orderDetail.fullName}
+                          </Typography>
+                          <Typography
+                            gutterBottom
+                            variant="body2"
+                            color={"text.secondary"}
+                          >
+                            Address: {orderDetail.address}
+                          </Typography>
+                          {Object.keys(cartData).length !== 0 && (
+                            <Typography>
+                              {"Total: " +
+                                Object.keys(cartData).reduce((total, item) => {
+                                  return (
+                                    cartData[item].amount *
+                                      cartData[item].price +
+                                    total
+                                  );
+                                }, 0) +
+                                " $"}
+                            </Typography>
+                          )}
                         </Box>
                       )}
                       <Typography sx={{ mt: 2, mb: 1 }}>
@@ -366,7 +516,16 @@ const ShoppingCart = () => {
                             Skip
                           </Button>
                         )}
-                        <Button onClick={handleNext}>
+                        <Button
+                          disabled={
+                            !(
+                              (activeStep === 0 && isBilingData) ||
+                              (activeStep === 1 && isCardData) ||
+                              (activeStep > 1 && authData.isLoggedIn)
+                            )
+                          }
+                          onClick={handleNext}
+                        >
                           {activeStep === steps.length - 1 ? "Finish" : "Next"}
                         </Button>
                       </Box>
@@ -377,6 +536,7 @@ const ShoppingCart = () => {
             </Container>
           </Paper>
         )}
+        {data && <Typography>{JSON.stringify(data)}</Typography>}
       </Stack>
     </Container>
   );

@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { UserAuthData } from "../../common/interfaces/auth.interface";
 
 const initialState: UserAuthData = {
-  uid: null,
+  uid: "anon",
   isLoggedIn: false,
   token: null,
   refreshToken: null,
@@ -18,7 +18,7 @@ const userAuthSlice = createSlice({
     logout: (state) => {
       state = {
         ...state,
-        uid: null,
+        uid: "anon",
         isLoggedIn: false,
         token: null,
         refreshToken: null,
