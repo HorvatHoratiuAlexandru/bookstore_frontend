@@ -27,12 +27,17 @@ import { AppDispatch, RootState } from "../../store/store";
 import { BACKEND_BASE_URL } from "../../common/config";
 import {
   addByKey,
+  removeAll,
   removeAllItems,
   removeItem,
 } from "../../store/shoppingcart/shoppingcartSlice";
 import { ChangeEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useGetUserByIdQuery } from "../../store/api/userapi/user.api";
+import {
+  usePayOrderMutation,
+  usePlaceOrderMutation,
+} from "../../store/api/orderapi/order.api";
 
 const steps = ["Billing Data", "Card Payment", "Confirm"];
 const switchValues = [
@@ -42,15 +47,20 @@ const switchValues = [
   "HOLDERNAME",
   "CARDNUMBER",
   "CCV",
+  "PROMOCODE",
 ];
 
 const ShoppingCart = () => {
+  const navigate = useNavigate();
+
   const cartData = useSelector((rootState: RootState) => rootState.cartData);
   const authData = useSelector((rootState: RootState) => rootState.userAuth);
 
-  const { data, error, isError, status } = useGetUserByIdQuery(authData.uid, {
+  const { data, status } = useGetUserByIdQuery(authData.uid, {
     skip: authData.uid === "anon",
   });
+  const [placeOrder] = usePlaceOrderMutation();
+  const [payOrder] = usePayOrderMutation();
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -71,6 +81,7 @@ const ShoppingCart = () => {
     email: string;
     fullName: string;
     address: string;
+    promoCode: string;
     cardNumber: string;
     ccv: string;
     cardHolderName: string;
@@ -79,6 +90,7 @@ const ShoppingCart = () => {
     email: data ? data.email : "",
     fullName: data ? data.fullName : "",
     address: data ? data.address : "",
+    promoCode: "",
     cardNumber: "",
     ccv: "",
     cardHolderName: data ? data.fullName : "",
@@ -87,8 +99,11 @@ const ShoppingCart = () => {
   const bilingDataExists = () => {
     if (
       orderDetail.email === "" ||
+      orderDetail.email === null ||
       orderDetail.fullName === "" ||
-      orderDetail.address === ""
+      orderDetail.fullName === null ||
+      orderDetail.address === "" ||
+      orderDetail.address === null
     ) {
       return false;
     }
@@ -98,8 +113,11 @@ const ShoppingCart = () => {
   const cardDataExists = () => {
     if (
       orderDetail.cardNumber === "" ||
+      orderDetail.cardNumber === null ||
       orderDetail.cardHolderName === "" ||
-      orderDetail.ccv === ""
+      orderDetail.cardHolderName === null ||
+      orderDetail.ccv === "" ||
+      orderDetail.ccv === null
     ) {
       return false;
     }
@@ -130,6 +148,9 @@ const ShoppingCart = () => {
       case switchValues[5]:
         setOrderDetail((state) => ({ ...state, ccv: value }));
         break;
+      case switchValues[6]:
+        setOrderDetail((state) => ({ ...state, promoCode: value }));
+        break;
     }
   };
 
@@ -150,6 +171,43 @@ const ShoppingCart = () => {
       newSkipped = new Set(newSkipped.values());
       newSkipped.delete(activeStep);
     }
+    if (activeStep === steps.length - 1) {
+      placeOrder({
+        userUid: authData.uid,
+        body: {
+          address: orderDetail.address,
+          items: Object.keys(cartData).reduce(
+            (items: { [key: string]: number }, curr) => {
+              items[curr] = cartData[curr].amount;
+              return items;
+            },
+            {}
+          ),
+          //add promo code
+        },
+      }).then((orderResponse) => {
+        if ("data" in orderResponse && orderResponse.data) {
+          const { data } = orderResponse;
+          if (isCardData) {
+            payOrder({
+              userUid: authData.uid,
+              orderId: data.orderId,
+              body: {
+                billingName: orderDetail.fullName,
+                cardNumber: orderDetail.cardNumber,
+                cardCode: orderDetail.ccv,
+                expDate: "04/69",
+              },
+            });
+          }
+        } else {
+          // Handle error case
+          console.error(orderResponse);
+        }
+      });
+
+      console.log("finished presed");
+    }
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
@@ -161,8 +219,6 @@ const ShoppingCart = () => {
 
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
       throw new Error("You can't skip a step that isn't optional.");
     }
 
@@ -174,9 +230,14 @@ const ShoppingCart = () => {
     });
   };
 
+  const handleCartCleanup = () => {
+    dispatch(removeAll());
+    navigate("/");
+  };
+
   console.log(orderDetail);
   return (
-    <Container>
+    <Container sx={{ marginY: 2 }}>
       <Stack gap={1}>
         <Paper>
           {Object.keys(cartData).length === 0 && (
@@ -327,9 +388,10 @@ const ShoppingCart = () => {
                         sx={{ display: "flex", flexDirection: "row", pt: 2 }}
                       >
                         <Box sx={{ flex: "1 1 auto" }} />
-                        <Link to="/">
-                          <Button>Go back to main page</Button>
-                        </Link>
+
+                        <Button onClick={handleCartCleanup}>
+                          Go back to main page
+                        </Button>
                       </Box>
                     </>
                   ) : (
@@ -385,6 +447,21 @@ const ShoppingCart = () => {
                             label="Full Name"
                             name="name"
                             autoComplete="FullName"
+                            autoFocus
+                          />
+                          <TextField
+                            value={orderDetail.promoCode}
+                            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                              handleFormChange(
+                                event.currentTarget.value,
+                                switchValues[6]
+                              )
+                            }
+                            margin="normal"
+                            fullWidth
+                            id="promocode"
+                            label="Promotional Code"
+                            name="promo"
                             autoFocus
                           />
                         </Box>
@@ -536,7 +613,6 @@ const ShoppingCart = () => {
             </Container>
           </Paper>
         )}
-        {data && <Typography>{JSON.stringify(data)}</Typography>}
       </Stack>
     </Container>
   );

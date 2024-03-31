@@ -56,10 +56,15 @@ const cartSlice = createSlice({
         delete state[key];
       }
     },
+    removeAll: (state) => {
+      Object.keys(state).forEach((key) => {
+        delete state[key];
+      });
+    },
   },
 });
 
-export const { addItem, removeItem, removeAllItems, addByKey } =
+export const { addItem, removeItem, removeAllItems, addByKey, removeAll } =
   cartSlice.actions;
 
 export default cartSlice.reducer;
