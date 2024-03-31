@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Badge,
   Box,
   Collapse,
   IconButton,
@@ -14,10 +15,11 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -26,9 +28,20 @@ import {
 } from "../../config";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { setSearchToggle } from "../../../store/searchToggle/searchToggleSlice";
+import { CartData } from "../../interfaces/cart.interface";
+
+const getCartItemNumber = (data: CartData) => {
+  let amount = 0;
+  for (const key in data) {
+    amount = amount + data[key].amount;
+  }
+
+  return amount;
+};
 
 const NavBar = () => {
   const authData = useSelector((state: RootState) => state.userAuth);
+  const cartData = useSelector((state: RootState) => state.cartData);
 
   const isSearchOpen = useSelector(
     (state: RootState) => state.searchToggle.isSearchOpen
@@ -43,6 +56,7 @@ const NavBar = () => {
     setAnchorElUser(event.currentTarget);
   };
 
+  const itemsInCart = useMemo(() => getCartItemNumber(cartData), [cartData]);
   return (
     <>
       <AppBar position="static" color="primary">
@@ -140,9 +154,15 @@ const NavBar = () => {
                     ))}
               </Menu>
             </Box>
-            {
-              //******** */
-            }
+            <Box>
+              <Link to="/cart">
+                <IconButton>
+                  <Badge badgeContent={itemsInCart} color="error">
+                    <ShoppingCartIcon />
+                  </Badge>
+                </IconButton>
+              </Link>
+            </Box>
           </Toolbar>
         </Box>
       </AppBar>

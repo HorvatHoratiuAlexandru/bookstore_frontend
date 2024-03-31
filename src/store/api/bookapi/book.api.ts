@@ -1,17 +1,10 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BACKEND_BASE_URL } from "../../../common/config";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { bookData } from "../../../common/interfaces/responses/book.res.interface";
+import { baseQueryWithReauth } from "../../../common/utils";
 
 export const bookApi = createApi({
   reducerPath: "bookApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BACKEND_BASE_URL,
-    prepareHeaders: (headers) => {
-      headers.set("Content-Type", "application/json");
-      headers.set("Access-Control-Allow-Origin", "http://localhost:5174");
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getBooks: builder.query<bookData[], string[]>({
       query: (tags) => {
