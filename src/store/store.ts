@@ -9,6 +9,7 @@ import { authApi } from "./api/authapi/auth.api";
 import { bookApi } from "./api/bookapi/book.api";
 import { reviewApi } from "./api/reviewapi/review.api";
 import { userApi } from "./api/userapi/user.api";
+import { orderApi } from "./api/orderapi/order.api";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     search: searchReducer,
     searchToggle: searchToggleReducer,
     cartData: cartDataReducer,
+    [orderApi.reducerPath]: orderApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [bookApi.reducerPath]: bookApi.reducer,
     [reviewApi.reducerPath]: reviewApi.reducer,
@@ -27,7 +29,8 @@ export const store = configureStore({
       authApi.middleware,
       bookApi.middleware,
       reviewApi.middleware,
-      userApi.middleware
+      userApi.middleware,
+      orderApi.middleware
     );
   },
 });

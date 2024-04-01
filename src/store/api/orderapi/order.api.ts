@@ -26,7 +26,7 @@ export const orderApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ["order"],
   endpoints: (builder) => ({
-    getOrders: builder.query<GetOrdersDataRes, string>({
+    getOrders: builder.query<GetOrdersDataRes[], string>({
       query: (userUid) => {
         return BACKEND_BASE_URL + "user/" + userUid + "/orders";
       },

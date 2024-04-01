@@ -6,6 +6,7 @@ import HomePage from "../pages/home/Home";
 import { Box, Container } from "@mui/material";
 import BookPage from "../pages/book/Book";
 import ShoppingCart from "../pages/shop/ShoppingCart";
+import Orders from "../pages/orders/Orders";
 
 const Router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const Router = createBrowserRouter([
       {
         path: "cart",
         element: <ShoppingCart />,
+      },
+      {
+        path: "order",
+        element: <Orders />,
       },
     ],
   },
