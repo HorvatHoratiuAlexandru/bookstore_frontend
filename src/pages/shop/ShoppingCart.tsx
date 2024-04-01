@@ -31,7 +31,7 @@ import {
   removeAllItems,
   removeItem,
 } from "../../store/shoppingcart/shoppingcartSlice";
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetUserByIdQuery } from "../../store/api/userapi/user.api";
 import {
@@ -156,6 +156,7 @@ const ShoppingCart = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
+  const [stepError, setStepError] = useState<any>(undefined);
 
   const isStepOptional = (step: number) => {
     return step === 1;
@@ -166,6 +167,10 @@ const ShoppingCart = () => {
   };
 
   const handleNext = () => {
+    if (stepError) {
+      setStepError(undefined);
+    }
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
@@ -185,9 +190,10 @@ const ShoppingCart = () => {
           ),
           //add promo code
         },
-      }).then((orderResponse) => {
-        if ("data" in orderResponse && orderResponse.data) {
-          const { data } = orderResponse;
+      })
+        .unwrap()
+        .then((orderResponse) => {
+          const data = orderResponse;
           if (isCardData) {
             payOrder({
               userUid: authData.uid,
@@ -198,13 +204,14 @@ const ShoppingCart = () => {
                 cardCode: orderDetail.ccv,
                 expDate: "04/69",
               },
+            }).catch((payErr) => {
+              setStepError(payErr);
             });
           }
-        } else {
-          // Handle error case
-          console.error(orderResponse);
-        }
-      });
+        })
+        .catch((placeErr) => {
+          setStepError(placeErr);
+        });
 
       console.log("finished presed");
     }
@@ -235,7 +242,12 @@ const ShoppingCart = () => {
     navigate("/");
   };
 
-  console.log(orderDetail);
+  useEffect(() => {
+    if (stepError) {
+      setActiveStep(0);
+    }
+  }, [stepError]);
+
   return (
     <Container sx={{ marginY: 2 }}>
       <Stack gap={1}>
@@ -350,6 +362,16 @@ const ShoppingCart = () => {
                     to place an order.
                   </Typography>
                 )}
+                {stepError && (
+                  <Typography
+                    align="center"
+                    gutterBottom
+                    variant="body2"
+                    color={"error"}
+                  >
+                    {JSON.stringify(stepError)}
+                  </Typography>
+                )}
                 <Typography gutterBottom variant="h6" color={"primary"}>
                   Place Order:
                 </Typography>
@@ -375,6 +397,7 @@ const ShoppingCart = () => {
                       );
                     })}
                   </Stepper>
+
                   {activeStep === steps.length ? (
                     <>
                       <Typography
