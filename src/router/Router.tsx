@@ -3,23 +3,23 @@ import NavBar from "../common/components/Navigation/NavBar";
 import RegisterPage from "../pages/auth/Register";
 import LogInPage from "../pages/auth/Login";
 import HomePage from "../pages/home/Home";
-import { Box, Container } from "@mui/material";
+import { Container } from "@mui/material";
 import BookPage from "../pages/book/Book";
 import ShoppingCart from "../pages/shop/ShoppingCart";
 import Orders from "../pages/orders/Orders";
+import OrderDetail from "../pages/orders/OrderDetail";
 
 const Router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <div>
-        <Container>
-          <Box bgcolor={"#EEEEEE"} padding={1}>
-            <NavBar />
-            <Outlet />
-          </Box>
-        </Container>
-      </div>
+      <Container
+        maxWidth={"lg"}
+        sx={{ height: "100vh", overflow: "scroll", backgroundColor: "#EEEEEE" }}
+      >
+        <NavBar />
+        <Outlet />
+      </Container>
     ),
     children: [
       {
@@ -42,6 +42,10 @@ const Router = createBrowserRouter([
       {
         path: "cart",
         element: <ShoppingCart />,
+      },
+      {
+        path: "order/:orderId",
+        element: <OrderDetail />,
       },
       {
         path: "order",

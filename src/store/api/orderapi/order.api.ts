@@ -32,6 +32,20 @@ export const orderApi = createApi({
       },
       providesTags: [{ type: "order", id: 1 }],
     }),
+    getOrder: builder.query<
+      GetOrdersDataRes,
+      { userUid: string | undefined; orderId: number | undefined }
+    >({
+      query: (pathVariables) => {
+        return (
+          BACKEND_BASE_URL +
+          "user/" +
+          pathVariables.userUid +
+          "/orders/" +
+          pathVariables.orderId
+        );
+      },
+    }),
     placeOrder: builder.mutation<PlaceOrderDataRes, PlaceOrderRequestParam>({
       query: ({ body, userUid }) => ({
         url: BACKEND_BASE_URL + "user/" + userUid + "/orders",
@@ -57,5 +71,9 @@ export const orderApi = createApi({
   }),
 });
 
-export const { useGetOrdersQuery, usePlaceOrderMutation, usePayOrderMutation } =
-  orderApi;
+export const {
+  useGetOrdersQuery,
+  usePlaceOrderMutation,
+  usePayOrderMutation,
+  useGetOrderQuery,
+} = orderApi;
